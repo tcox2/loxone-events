@@ -8,10 +8,12 @@ class StateMappingTest {
    {"rooms":{"r":{"name":"Kitchen"}},"controls":{"parent":{"name":"Power","type":"Meter","room":"r",
    "details":{"actualFormat":"%%.3fkW","password":"secret"},"states":{"actual":"%s"},
    "subControls":{"child":{"name":"Display","type":"InfoOnlyAnalog","states":{"value":"%s"}}}}},
+   "autopilot":{"a":{"name":"Rules","states":{"changed":"%s"}}},
+   "messageCenter":{"m":{"name":"Status","states":{"changed":"%s"}}},
    "globalStates":{"clock":"%s"},"weatherServer":{"states":{"actual":"%s"}}}
-   """.formatted(uuid,uuid,uuid,uuid));
+   """.formatted(uuid,uuid,uuid,uuid,uuid,uuid));
   var parsed=StateMapping.parse(root);assertEquals(1,parsed.size());
-  var refs=parsed.get(uuid);assertEquals(4,refs.size());
+  var refs=parsed.get(uuid);assertEquals(6,refs.size());
   assertEquals("Kitchen",refs.get(1).get("room"));assertEquals("%.3fkW",refs.getFirst().get("format"));
   assertFalse(Config.JSON.writeValueAsString(parsed).contains("secret"));
   assertThrows(IllegalArgumentException.class,()->StateMapping.parse(Config.JSON.readTree("{}")));

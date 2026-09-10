@@ -18,6 +18,8 @@ final class StateMapping implements Runnable {
         Events.require(root.path("controls").isObject(),"Missing structure controls");
         var result=new TreeMap<String,List<Map<String,String>>>();
         controls(root.path("controls"),root,"",result);
+        controls(root.path("autopilot"),root,"",result);
+        controls(root.path("messageCenter"),root,"",result);
         references(root.path("globalStates"),"",Map.of("name","Global","type","Global"),result);
         references(root.path("weatherServer").path("states"),"",Map.of("name","Weather","type","Weather","formats",root.path("weatherServer").path("format").toString()),result);
         return result;
@@ -30,6 +32,7 @@ final class StateMapping implements Runnable {
             info.put("control_uuid",entry.getKey());info.put("name",c.path("name").asText());
             info.put("type",c.path("type").asText());info.put("room",room);
             info.put("category",root.path("cats").path(c.path("cat").asText()).path("name").asText());
+            references(c.path("uuidAction"),"uuidAction",info,result);
             c.path("states").fields().forEachRemaining(state->{
                 var ref=new LinkedHashMap<>(info);
                 String key=state.getKey();var details=c.path("details");
