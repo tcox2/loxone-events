@@ -19,8 +19,9 @@ public final class Main {
                     catch(Exception e){log("postgres_write_failed type="+e.getClass().getSimpleName()+(e instanceof java.sql.SQLException sql?" sqlstate="+sql.getSQLState():"")+"; disk buffer retained");try{Thread.sleep(5000);}catch(InterruptedException stop){Thread.currentThread().interrupt();}}
                 }
             });
+            Thread metadata=Thread.ofPlatform().daemon().name("state-mapping").start(new StateMapping(config,spool));
             var main=Thread.currentThread();
-            Runtime.getRuntime().addShutdownHook(new Thread(()->{main.interrupt();writer.interrupt();}));
+            Runtime.getRuntime().addShutdownHook(new Thread(()->{main.interrupt();writer.interrupt();metadata.interrupt();}));
             int delay=5;
             while(!Thread.currentThread().isInterrupted()) {
                 long started=System.nanoTime();
@@ -35,6 +36,7 @@ public final class Main {
                     delay=System.nanoTime()-started>Duration.ofMinutes(2).toNanos()?5:Math.min(delay*2,300);
                 }
             }
+            metadata.interrupt();metadata.join(5000);
             writer.interrupt();writer.join(35000);
         }
     }

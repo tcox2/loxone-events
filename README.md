@@ -25,3 +25,16 @@ SELECT pg_size_pretty(pg_database_size('loxone'));
 Protocol reference: [Loxone Miniserver communication API v17](https://www.loxone.com/enen/wp-content/uploads/sites/3/2026/04/1700_Communicating-with-the-Miniserver.pdf).
 
 Deployment on Aziz is managed by the private [tcox2/aziz](https://github.com/tcox2/aziz) Compose repository, which pins this repository as a Git submodule. Credentials and buffered events remain outside Git under `/opt/aziz/private/loxone-events/`.
+
+## State metadata
+
+Apply `src/main/resources/mapping.sql` as the database administrator (after `schema.sql`), then `ops/grants.sql`. This also backfills UUIDs from existing events. `state_mapping` is keyed by source and event UUID. Its `mappings` JSON array preserves all referencing controls with their names, types, rooms, categories, state names and display formats (including units where supplied). Global and weather states are included. Credentials and unrelated configuration details are not copied.
+
+An insert trigger atomically registers every observed UUID and maintains first/last observation times, including during metadata-service outages. Metadata refresh runs independently of event collection: on startup, hourly for renamed/new controls, and every five minutes while observed states remain unresolved. New unresolved states are checked and logged every minute. Failed refreshes retry in 60 seconds without replacing existing mappings. Controls removed from the structure retain their last known labels but are flagged absent. Some internal states may never have names in the published structure; these remain tracked rather than receiving invented labels.
+
+```sql
+SELECT * FROM unresolved_states ORDER BY last_seen_at DESC;
+SELECT e.received_at, m.mappings, e.payload
+FROM events e LEFT JOIN state_mapping m USING (source,event_uuid)
+ORDER BY e.received_at DESC LIMIT 20;
+```
