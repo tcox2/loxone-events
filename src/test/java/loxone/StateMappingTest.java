@@ -6,7 +6,7 @@ class StateMappingTest {
   String uuid="12345678-abcd-1234-0123456789abcdef";
   var root=Config.JSON.readTree("""
    {"rooms":{"r":{"name":"Kitchen"}},"controls":{"parent":{"name":"Power","type":"Meter","room":"r",
-   "details":{"actualFormat":"%.3fkW","password":"secret"},"states":{"actual":"%s"},
+   "details":{"actualFormat":"%%.3fkW","password":"secret"},"states":{"actual":"%s"},
    "subControls":{"child":{"name":"Display","type":"InfoOnlyAnalog","states":{"value":"%s"}}}}},
    "globalStates":{"clock":"%s"},"weatherServer":{"states":{"actual":"%s"}}}
    """.formatted(uuid,uuid,uuid,uuid));
