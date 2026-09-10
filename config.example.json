@@ -1,0 +1,9 @@
+{
+  "endpoint": "wss://miniserver.example.com/ws/rfc6455",
+  "username": "event-recorder",
+  "password": "REPLACE_OUTSIDE_GIT",
+  "jdbc_url": "jdbc:postgresql://192.168.4.64:5432/loxone",
+  "database_user": "loxone_events",
+  "database_password": "REPLACE_OUTSIDE_GIT",
+  "state_directory": "/state"
+}
